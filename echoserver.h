@@ -61,6 +61,7 @@
 #include <QVariant>
 #include<QJsonArray>
 #include<QHash>
+#include<dataaccessobject.h>
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 

@@ -43,7 +43,7 @@ void EchoServer::onNewConnection()
 //! [onNewConnection]
 
 //! [processTextMessage]
-void EchoServer::processTextMessage(QString message)
+void EchoServer::processTextMessage(QString rawJsonStringMessage)
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (pClient== nullptr){
@@ -53,7 +53,7 @@ void EchoServer::processTextMessage(QString message)
         qDebug("Message received:");
 
     // Convert the QString to a QByteArray
-        QByteArray jsonBytes = message.toUtf8();
+        QByteArray jsonBytes = rawJsonStringMessage.toUtf8();
 
         // Parse the JSON string into a QJsonDocument
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonBytes);
@@ -80,14 +80,17 @@ void EchoServer::processTextMessage(QString message)
 
                 int senderId = jsonObject["senderId"].toInt();
                 int receiverId = jsonObject["receiverId"].toInt();
+                QString message = jsonObject["message"].toString();
+//                QString message
                 qDebug("contains a senderId "+ QString::number(senderId).toLatin1());
                 if (senderId>=1){
                     if(mapUserIdToSocket[pClient]==senderId){
                         //find all the pClients which have receiver as their value
                         for (auto it = mapUserIdToSocket.begin(); it != mapUserIdToSocket.end(); ++it) {
                             if (it.value() == receiverId && it.key()!= nullptr) {
-                                it.key()->sendTextMessage(message);
-                                qDebug("sent " + message.toLatin1());
+                                it.key()->sendTextMessage(rawJsonStringMessage);
+                                DataAccessObject::getInstance().createMessage(senderId, receiverId, message);
+                                qDebug("sent " + rawJsonStringMessage.toLatin1());
                             }
                         }
                     }else{
@@ -95,8 +98,9 @@ void EchoServer::processTextMessage(QString message)
                         //find all the pClients which have receiver as their value
                         for (auto it = mapUserIdToSocket.begin(); it != mapUserIdToSocket.end(); ++it) {
                             if (it.value() == receiverId && it.key()!= nullptr) {
-                                it.key()->sendTextMessage(message);
-                                qDebug("sent " + message.toLatin1());
+                                it.key()->sendTextMessage(rawJsonStringMessage);
+                                DataAccessObject::getInstance().createMessage(senderId, receiverId, message);
+                                qDebug("sent " + rawJsonStringMessage.toLatin1());
                             }
                         }
                     }
@@ -113,13 +117,13 @@ void EchoServer::processTextMessage(QString message)
 //! [processTextMessage]
 
 //! [processBinaryMessage]
-void EchoServer::processBinaryMessage(QByteArray message)
+void EchoServer::processBinaryMessage(QByteArray rawJsonStringMessage)
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (m_debug)
-        qDebug() << "Binary Message received:" << message;
+        qDebug() << "Binary Message received:" << rawJsonStringMessage;
     if (pClient) {
-        pClient->sendBinaryMessage(message);
+        pClient->sendBinaryMessage(rawJsonStringMessage);
     }
 }
 //! [processBinaryMessage]

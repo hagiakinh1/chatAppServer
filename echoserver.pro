@@ -1,4 +1,4 @@
-QT       += core websockets
+QT       += core websockets sql
 QT       -= gui
 
 TARGET = echoserver
@@ -9,7 +9,9 @@ TEMPLATE = app
 
 SOURCES += \
     main.cpp \
-    echoserver.cpp
+    echoserver.cpp\
+    dataaccessobject.cpp\
+    dataaccessobject.h
 
 HEADERS += \
     echoserver.h
